@@ -7,12 +7,19 @@ class TestBuilder(object):
         task_translator_factory = mocker.patch(
             "aws_datapipeline_task_translator_factory.AwsDatapipelineTaskTranslatorFactory",
             auto_spec=True)
-        yield task_translator_factory
+        yield task_translator_factory.return_value
 
     @pytest.fixture()
     def builder(self, mock_task_translator_factory):
+        """
+
+        :param mock_task_translator_factory: Required because
+                                             aws_datapipeline_definition_builder.AwsDatapipelineDefinitionBuilder()
+                                             depends on it.
+        :return:
+        """
         import aws_datapipeline_definition_builder
-        instance = aws_datapipeline_definition_builder.AwsDatapipelineDefinitionBuilder(mock_task_translator_factory)
+        instance = aws_datapipeline_definition_builder.AwsDatapipelineDefinitionBuilder()
         yield instance
 
     def test_add_and_build(self,

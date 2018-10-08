@@ -2,10 +2,8 @@ import aws_datapipeline_task_translator_factory
 
 
 class AwsDatapipelineDefinitionBuilder(object):
-    def __init__(
-            self,
-            task_translator_factory=aws_datapipeline_task_translator_factory.AwsDatapipelineTaskTranslatorFactory()):
-        self.__task_translator_factory = task_translator_factory
+    def __init__(self):
+        self.__task_translator_factory = aws_datapipeline_task_translator_factory.AwsDatapipelineTaskTranslatorFactory()
         self.__translated_tasks = []
 
     def add(self, task_ir):
