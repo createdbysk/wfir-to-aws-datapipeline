@@ -13,5 +13,5 @@ class AwsDatapipelineDefinitionBuilder(object):
 
     def build(self):
         definition = dict()
-        definition["objects"] = self.__translated_tasks.copy()
+        definition["objects"] = self.__translated_tasks[:]
         return definition
