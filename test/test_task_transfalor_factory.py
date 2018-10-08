@@ -1,6 +1,7 @@
 import pytest
 import wfir
 
+
 class TestAwsDatapipelineTaskTranslatorFactory(object):
     @pytest.fixture()
     def mock_pkg_resources_iter_entry_points(self, mocker):
@@ -8,15 +9,19 @@ class TestAwsDatapipelineTaskTranslatorFactory(object):
         yield iter_entry_points
 
     @pytest.fixture()
-    def task_factory(self, mocker):
-        yield mocker.sentinel.task_factory
+    def mock_task_translator_module(self, mocker):
+        class TaskTranslatorModuleSpec(object):
+            def translate(self, task_ir):
+                pass
+
+        task_translator_module = mocker.Mock(spec=TaskTranslatorModuleSpec)
+        yield task_translator_module
 
     @pytest.fixture()
-    def entry_points(self, task_factory):
+    def entry_points(self, mock_task_translator_module):
         return {
-            "aws.datapipeline.task": task_factory
+            "aws.datapipeline.task": mock_task_translator_module
         }
-
 
     # noinspection PyUnusedLocal
     @pytest.fixture()
@@ -25,6 +30,7 @@ class TestAwsDatapipelineTaskTranslatorFactory(object):
                                                  mock_pkg_resources_iter_entry_points):
         """
 
+        :param entry_points:
         :param mock_pkg_resources_iter_entry_points: aws_datapipeline_task_translator_factory.AwsDatapipelineTaskTranslatorFactory()
                                                      depends on this.
 
@@ -60,7 +66,7 @@ class TestAwsDatapipelineTaskTranslatorFactory(object):
         mock_pkg_resources_iter_entry_points.assert_called_with("wfir.task_translators")
 
     def test_create(self,
-                    task_factory,
+                    mock_task_translator_module,
                     aws_datapipeline_task_translator_factory):
         # GIVEN
         # aws_datapipeline_task_translator_factory
@@ -68,10 +74,11 @@ class TestAwsDatapipelineTaskTranslatorFactory(object):
             wfir.fields.TYPE_KEY: "task"
         }
 
-        expected_result = task_factory
-
         # WHEN
-        actual_result = aws_datapipeline_task_translator_factory.create(task_ir)
+        result = aws_datapipeline_task_translator_factory.create(task_ir)
 
         # THEN
-        assert expected_result == actual_result
+        # aws_datapipeline_task_translator_factory.create(task_ir) is expected to return a function,
+        # which when invoked, calls invokes the translator with the task_ir as a parameter.
+        result()
+        mock_task_translator_module.translate.assert_called_with(task_ir)

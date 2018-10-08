@@ -1,5 +1,6 @@
 import pkg_resources
 import wfir
+import functools
 
 
 class AwsDatapipelineTaskTranslatorFactory(object):
@@ -14,6 +15,7 @@ class AwsDatapipelineTaskTranslatorFactory(object):
             entry_point_prefix=AwsDatapipelineTaskTranslatorFactory.__ENTRY_POINT_PREFIX,
             task_type=task_type
         )
-        task_translator = self.__entry_points[entry_point_name]
+        task_translator_module = self.__entry_points[entry_point_name]
+        task_translator = functools.partial(task_translator_module.translate, task_ir)
         return task_translator
 
