@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBuilder(object):
+class TestDefinitionBuilder(object):
     @pytest.fixture()
     def mock_task_translator_factory(self, mocker):
         task_translator_factory = mocker.patch(
