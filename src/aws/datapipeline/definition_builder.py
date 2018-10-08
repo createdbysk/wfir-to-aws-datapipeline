@@ -13,9 +13,11 @@ class DefinitionBuilder(object):
 
     def build(self):
         definition = dict()
-        translated_tasks = [
-            task_translator()
-            for task_translator in self.__task_translators
-        ]
+        context = {}
+        translated_tasks = []
+        for index, task_translator in enumerate(self.__task_translators):
+            context["task_index"] = index
+            translated_task = task_translator(context)
+            translated_tasks.append(translated_task)
         definition["objects"] = translated_tasks
         return definition

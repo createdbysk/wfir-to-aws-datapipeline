@@ -11,7 +11,8 @@ class TestDefinitionBuilder(object):
 
     @pytest.fixture()
     def mock_translator(self, mocker):
-        def translator_spec(ir):
+        # noinspection PyUnusedLocal
+        def translator_spec(ir, context):
             pass
 
         translator = mocker.Mock(spec=translator_spec)
@@ -41,6 +42,9 @@ class TestDefinitionBuilder(object):
         task_ir = {
             "type": task_type
         }
+        context = {
+            "task_index": 1
+        }
         translated_task = mocker.sentinel.translated_task
         mock_task_translator_factory.create.return_value = mock_translator
         mock_translator.return_value = translated_task
@@ -55,6 +59,6 @@ class TestDefinitionBuilder(object):
         actual_result = builder.add(task_ir).build()
 
         # THEN
-        mock_task_translator_factory.create.assert_called_with(task_ir)
+        mock_task_translator_factory.create.assert_called_with(task_ir, context)
         assert mock_translator.called
         assert expected_result == actual_result
