@@ -9,11 +9,14 @@ class TestBuilder(object):
 
     @pytest.fixture()
     def builder(self, mock_task_translator_factory):
-        import builder
-        instance = builder.Builder(mock_task_translator_factory)
+        import aws_datapipeline_definition_builder
+        instance = aws_datapipeline_definition_builder.AwsDatapipelineDefinitionBuilder(mock_task_translator_factory)
         yield instance
 
-    def test_add_and_build(self, builder, mock_task_translator_factory, mocker):
+    def test_add_and_build(self,
+                           builder,
+                           mock_task_translator_factory,
+                           mocker):
         # GIVEN
         # builder (instance of Builder)
         task_type = "task"
@@ -22,9 +25,16 @@ class TestBuilder(object):
         }
         translated_task = mocker.sentinel.translated_task
         mock_task_translator_factory.create.return_value = translated_task
+        definition = {
+            "objects": [
+                translated_task
+            ]
+        }
+        expected_result = definition
 
         # WHEN
-        builder.add(task_ir)
+        actual_result = builder.add(task_ir).build()
 
         # THEN
         mock_task_translator_factory.create.assert_called_with(task_ir)
+        assert expected_result == actual_result
