@@ -1,2 +1,3 @@
-def create(self):
-    raise NotImplementedError()
+class AwsDatapipelineTaskTranslatorFactory(object):
+    def create(self):
+        raise NotImplementedError()
