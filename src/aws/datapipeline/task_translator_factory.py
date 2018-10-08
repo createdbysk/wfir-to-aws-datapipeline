@@ -3,7 +3,7 @@ import wfir
 import functools
 
 
-class AwsDatapipelineTaskTranslatorFactory(object):
+class TaskTranslatorFactory(object):
     __ENTRY_POINT_PREFIX = "aws.datapipeline"
 
     def __init__(self):
@@ -12,7 +12,7 @@ class AwsDatapipelineTaskTranslatorFactory(object):
     def create(self, task_ir):
         task_type = task_ir[wfir.fields.TYPE_KEY]
         entry_point_name = "{entry_point_prefix}.{task_type}".format(
-            entry_point_prefix=AwsDatapipelineTaskTranslatorFactory.__ENTRY_POINT_PREFIX,
+            entry_point_prefix=TaskTranslatorFactory.__ENTRY_POINT_PREFIX,
             task_type=task_type
         )
         task_translator_module = self.__entry_points[entry_point_name]
