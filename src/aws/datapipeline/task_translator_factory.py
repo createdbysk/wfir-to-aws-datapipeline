@@ -15,7 +15,7 @@ class TaskTranslatorFactory(object):
             entry_point_prefix=TaskTranslatorFactory.__ENTRY_POINT_PREFIX,
             task_type=task_type
         )
-        task_translator_module = self.__entry_points[entry_point_name]
-        task_translator = functools.partial(task_translator_module.translate, task_ir)
+        task_translator_entry_point = self.__entry_points[entry_point_name]
+        task_translator = functools.partial(task_translator_entry_point, task_ir)
         return task_translator
 

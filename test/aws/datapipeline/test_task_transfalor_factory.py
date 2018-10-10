@@ -9,18 +9,17 @@ class TestTaskTranslatorFactory(object):
         yield iter_entry_points
 
     @pytest.fixture()
-    def mock_task_translator_module(self, mocker):
-        class TaskTranslatorModuleSpec(object):
-            def translate(self, task_ir):
-                pass
+    def mock_task_translator_entry_point(self, mocker):
+        def task_translator_spec(task_ir):
+            pass
 
-        task_translator_module = mocker.Mock(spec=TaskTranslatorModuleSpec)
-        yield task_translator_module
+        task_translator_entry_point = mocker.Mock(spec=task_translator_spec)
+        yield task_translator_entry_point
 
     @pytest.fixture()
-    def entry_points(self, mock_task_translator_module):
+    def entry_points(self, mock_task_translator_entry_point):
         return {
-            "aws.datapipeline.task": mock_task_translator_module
+            "aws.datapipeline.task": mock_task_translator_entry_point
         }
 
     # noinspection PyUnusedLocal
@@ -47,7 +46,6 @@ class TestTaskTranslatorFactory(object):
                                      task_translator_factory,
                                      mock_pkg_resources_iter_entry_points,
                                      mocker):
-
         """
 
         :param aws.datapipeline.task_translator_factory: To invoke aws.datapipeline.task_translator_factory.TaskTranslatorFactory.__init__
@@ -66,9 +64,8 @@ class TestTaskTranslatorFactory(object):
         # THEN
         mock_pkg_resources_iter_entry_points.assert_called_with("wfir.task_translators")
 
-
     def test_create(self,
-                    mock_task_translator_module,
+                    mock_task_translator_entry_point,
                     task_translator_factory):
         # GIVEN
         # task_translator_factory
@@ -83,4 +80,4 @@ class TestTaskTranslatorFactory(object):
         # aws.datapipeline.task_translator_factory.create(task_ir) is expected to return a function,
         # which when invoked, calls invokes the translator with the task_ir as a parameter.
         result()
-        mock_task_translator_module.translate.assert_called_with(task_ir)
+        mock_task_translator_entry_point.assert_called_with(task_ir)
