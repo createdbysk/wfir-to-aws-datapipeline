@@ -10,7 +10,7 @@ class TestTaskTranslatorFactory(object):
 
     @pytest.fixture()
     def mock_task_translator_entry_point(self, mocker):
-        def task_translator_spec(task_ir):
+        def task_translator_spec(task_ir, context):
             pass
 
         task_translator_entry_point = mocker.Mock(spec=task_translator_spec)
@@ -72,12 +72,14 @@ class TestTaskTranslatorFactory(object):
         task_ir = {
             wfir.fields.TYPE_KEY: "task"
         }
-
+        context = {
+            "task_index": 1
+        }
         # WHEN
         result = task_translator_factory.create(task_ir)
 
         # THEN
         # aws.datapipeline.task_translator_factory.create(task_ir) is expected to return a function,
         # which when invoked, calls invokes the translator with the task_ir as a parameter.
-        result()
-        mock_task_translator_entry_point.assert_called_with(task_ir)
+        result(context)
+        mock_task_translator_entry_point.assert_called_with(task_ir, context)
