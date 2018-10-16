@@ -1,5 +1,7 @@
+# noinspection PyPackageRequirements
 import pytest
 import os
+
 
 @pytest.fixture()
 def deployed_path():
@@ -11,9 +13,14 @@ def deployed_path():
     yield impl
 
 
+@pytest.fixture()
+def worker_group():
+    yield "worker-group"
+
 # noinspection PyShadowingNames
 @pytest.fixture()
-def context_factory(deployed_path):
+def context_factory(deployed_path,
+                    worker_group):
     class Context(object):
         def __init__(self, renderer):
             self.__renderer = renderer
@@ -36,6 +43,9 @@ def context_factory(deployed_path):
         def task_index(self):
             return "001"
 
+        def add_compute(self, definition):
+            definition["workerGroup"] = worker_group
+
     def factory(renderer):
         return Context(renderer)
 
@@ -43,7 +53,8 @@ def context_factory(deployed_path):
 
 
 def test_sql_script(context_factory,
-                    deployed_path):
+                    deployed_path,
+                    worker_group):
     from aws.datapipeline.task_translators import translate_sql_script
     # GIVEN
     file_path = "/path/to/sql_script.sql"
@@ -65,7 +76,7 @@ def test_sql_script(context_factory,
         "database": {
             "ref": database
         },
-        "workerGroup": "worker-group"
+        "workerGroup": worker_group
     }
 
     expected_result = sql_script_definition
