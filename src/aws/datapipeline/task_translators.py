@@ -27,9 +27,8 @@ class __Translator(object):
         context = context_factory(renderer)
         parameters = self._create_parameters(task_ir, context)
         translated_json = renderer.render(template, context, task_ir, parameters)
-        print("Translated", translated_json)
         translated = json.loads(translated_json)
-        context.add_compute(translated)
+        context.add_standard_fields(translated)
         return translated
 
 
@@ -39,10 +38,7 @@ class _SqlScriptTranslator(__Translator):
 {
     "type": "SqlActivity",
     "id": "{{ task_index }}_{{#filename_without_extension}}{{ file_path }}{{/filename_without_extension}}",
-    "scriptUri": "{{#deployed_path}}{{ file_path }}{{/deployed_path}}",
-    "database": {
-        "ref": "{{ database }}"
-    }
+    "scriptUri": "{{#deployed_path}}{{ file_path }}{{/deployed_path}}"
 }    
 """
 
