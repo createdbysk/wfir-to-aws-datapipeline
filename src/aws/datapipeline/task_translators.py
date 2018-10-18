@@ -34,7 +34,8 @@ class _Translator(object):
         parameters = self._create_parameters(task_ir, context)
         translated_json = renderer.render_path(template_path, context, task_ir, parameters)
         translated = json.loads(translated_json)
-        context.add_standard_fields(translated)
+        context.add_standard_fields(translated,
+                                    "{{#filename_without_extension}}{{ file_path }}{{/filename_without_extension}}")
         return translated
 
 

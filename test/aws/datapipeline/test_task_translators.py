@@ -18,10 +18,16 @@ def test_placeholder_for_standard_fields():
     yield "test_placeholder_for_standard_fields"
 
 
+@pytest.fixture()
+def name_suffix():
+    yield ""
+
+
 # noinspection PyShadowingNames
 @pytest.fixture()
 def context_factory(deployed_path,
-                    test_placeholder_for_standard_fields):
+                    test_placeholder_for_standard_fields,
+                    name_suffix):
     class Context(object):
         def __init__(self, renderer):
             self.__renderer = renderer
@@ -46,10 +52,11 @@ def context_factory(deployed_path,
         def task_index():
             return "001"
 
-        def add_standard_fields(self, definition):
+        def add_standard_fields(self, definition, task_name_template):
             import json
             standard_fields_template = """
 {
+    "id": "{{ task_index }}",
     "{{ test_placeholder_for_standard_fields }}": {
     {{#database}}
         "database": "{{ database }}",
@@ -64,6 +71,12 @@ def context_factory(deployed_path,
                 test_placeholder_for_standard_fields=test_placeholder_for_standard_fields)
             standard_fields = json.loads(standard_fields_json)
             definition.update(standard_fields)
+
+            name_template = "{{ task_index }}_" + task_name_template + "{{ name_suffix }}"
+            name = self.__renderer.render(name_template, self.__renderer.context, name_suffix=name_suffix)
+            definition.update({
+                "name": name
+            })
 
     def factory(renderer):
         return Context(renderer)
@@ -90,7 +103,8 @@ def test_sql_script(context_factory,
 
     sql_script_definition = {
         "type": "SqlActivity",
-        "id": "001_sql_script",
+        "id": "001",
+        "name": "001_sql_script",
         "scriptUri": deployed_path,
         test_placeholder_for_standard_fields: {
             "database": database,
