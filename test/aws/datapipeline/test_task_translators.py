@@ -6,9 +6,17 @@ import os
 @pytest.fixture()
 def deployed_path():
     def impl(file_path):
-        file_basename = os.path.basename(file_path)
-        deployed_path = "s3://wfir-bucket/project-path/path/to/{filename}".format(filename=file_basename)
+        deployed_path = "s3://wfir-bucket/project-path/{file_path}".format(file_path=file_path)
         return deployed_path
+
+    yield impl
+
+
+@pytest.fixture()
+def path_relative_to_staging_dir():
+    def impl(file_path):
+        path_relative_to_staging_dir = "${{INPUT1_STAGING_DIR}}/{file_path}".format(file_path=file_path)
+        return path_relative_to_staging_dir
 
     yield impl
 
@@ -22,6 +30,9 @@ def test_placeholder_for_standard_fields():
 def name_suffix():
     yield ""
 
+@pytest.fixture()
+def input_s3_data_node_id():
+    yield "input_s3_data_node_id"
 
 # noinspection PyShadowingNames
 @pytest.fixture()
@@ -113,6 +124,51 @@ def test_sql_script(context_factory,
     }
 
     expected_result = sql_script_definition
+
+    # WHEN
+    actual_result = translate_sql_script(ir, context_factory)
+
+    # THEN
+    assert expected_result == actual_result
+
+
+def test_function(context_factory,
+                  path_relative_to_staging_dir,
+                  test_placeholder_for_standard_fields,
+                  input_s3_data_node_id):
+    from aws.datapipeline.task_translators import translate_sql_script
+    # GIVEN
+    artifact_path = "/path/to/artifact.zip"
+    module = "artifact"
+    handler = "handler"
+    compute = "compute"
+    command = 'tar -xvzf {path_relative_to_staging_dir} ' \
+              ''&& cd artifact '' \
+              '&& EVENT=#{myEVent} python -c "import "'
+
+    ir = {
+        "type": "sql_script",
+        "artifact": artifact_path,
+        "module": module,
+        "handler": handler
+        "compute": compute
+    }
+
+    function_definition = {
+        "type": "ShellCommandActivity",
+        "id": "001",
+        "name": "001_artifact",
+        "input": {
+            "ref": input_s3_data_node_id
+        },
+        "stage": True,
+        "command": command,
+        test_placeholder_for_standard_fields: {
+            "compute": compute
+        }
+    }
+
+    expected_result = function_definition
 
     # WHEN
     actual_result = translate_sql_script(ir, context_factory)
