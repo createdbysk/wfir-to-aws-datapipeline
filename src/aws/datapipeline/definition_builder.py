@@ -1,4 +1,4 @@
-import task_translator_factory
+import aws.datapipeline.task_translator_factory as task_translator_factory
 
 
 class DefinitionBuilder(object):

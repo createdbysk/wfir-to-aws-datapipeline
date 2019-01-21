@@ -143,14 +143,14 @@ def test_function(context_factory,
     handler = "handler"
     compute = "compute"
     command = 'tar -xvzf {path_relative_to_staging_dir} ' \
-              ''&& cd artifact '' \
+              '&& cd artifact ' \
               '&& EVENT=#{myEVent} python -c "import "'
 
     ir = {
         "type": "sql_script",
         "artifact": artifact_path,
         "module": module,
-        "handler": handler
+        "handler": handler,
         "compute": compute
     }
 

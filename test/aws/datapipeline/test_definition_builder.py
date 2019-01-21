@@ -6,13 +6,13 @@ class TestDefinitionBuilder(object):
     def mock_task_translator_factory(self, mocker):
         task_translator_factory = mocker.patch(
             "aws.datapipeline.task_translator_factory.TaskTranslatorFactory",
-            auto_spec=True)
+            autospec=True)
         yield task_translator_factory.return_value
 
     @pytest.fixture()
     def mock_translator(self, mocker):
         # noinspection PyUnusedLocal
-        def translator_spec(ir, context):
+        def translator_spec(task_ir):
             pass
 
         translator = mocker.Mock(spec=translator_spec)
@@ -59,6 +59,6 @@ class TestDefinitionBuilder(object):
         actual_result = builder.add(task_ir).build()
 
         # THEN
-        mock_task_translator_factory.create.assert_called_with(task_ir, context)
+        mock_task_translator_factory.create.assert_called_with(task_ir)
         assert mock_translator.called
         assert expected_result == actual_result
